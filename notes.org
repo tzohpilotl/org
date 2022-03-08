@@ -1,0 +1,22 @@
+* Unit Tests In React [20%]
+** DONE Introduction
+CLOSED: [2022-03-08 Tue 20:43]
+Unit testing is the first tool programmers have to ensure the correctness of
+their programs. What makes a unit test a unit test, is its scope: unit tests are
+should only test a unit a time. A unit is a diffuse term but usually it refers
+to a function or a class. A good unit test proves the outcome of the unit under
+test is correct for all it's logic branches, and for the relevant inputs.
+Fortunately, reaping the benefits of unit testing is not hard because the latest
+developments in technology make writing unit tests easy.
+** TODO Unit Tests Scope In React
+As in every kind applications, React apps benefit from having unit tests, but
+they come with their own set of complications. 
+** TODO Testing State vs Testing Outcomes
+*** Test Robustness
+*** Test Value
+** TODO When To Test The Redux =connect= HOC
+*** Test Value
+*** Testing the =mapStateToProps= function
+** TODO How To Test React Components
+*** Test Value
+*** Testing The Outcomes
