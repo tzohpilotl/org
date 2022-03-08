@@ -1,0 +1,64 @@
+#+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/3.0.0/
+#+REVEAL_VERSION: 3.0.0
+#+REVEAL_THEME: simple
+#+OPTIONS: toc:1
+#+TITLE: Unit Tests In React
+
+* Context
+** Unit Tests Benefits
+- Ensure code correctness at the lowest level
+- Prevents bug regressions
+- Makes code coverage look cool 😎
+#+BEGIN_NOTES
+Unit testing is the first tool programmers have to ensure the correctness of
+their programs.
+#+END_NOTES
+** Unit Tests Definition
+What makes a unit test a unit test is its scope:
+
+Unit tests should only test one unit a time.
+#+BEGIN_NOTES
+A unit is a diffuse term but it usually refers to a function or a class. A good
+unit test proves the outcome of the unit under test is correct for all it's
+logic branches, and for the relevant inputs. Fortunately, reaping the benefits
+of unit testing is not hard because the latest developments in technology make
+writing unit tests easy.
+#+END_NOTES
+* Unit Tests Scope In React
+- Keep in mind the React component ultimate purpose: to generate HTML code
+- A component is a unit
+#+BEGIN_NOTES
+As in every kind application, React apps benefit from having unit tests, but
+they come with their own set of complications. What's generally accepted though,
+is that a React component, especially if it's simple as in markup-only
+components, but even if it's complex, with state management, children, and
+network calls, is an unit. With the exception of higher-order-components,
+something we should always keep in mind while testing is a component's
+fundamental /purpose/: to generate HTML code. This means that all that state
+handling, network calling, and children bearing, will ultimately result in a
+tree of HTML tags ready to be rendered by the browser.
+#+END_NOTES
+* Testing State vs Testing Outcomes
+** Testing State
+** Testing Outcomes
+*** Test Robustness
+In general, test robustness increases if we test outcomes.
+*** Test Value
+The value of a test has to be proposed case by case, it depends on the unit's
+purpose.
+** Which one is better?
+* When To Test The Redux =connect= HOC
+** Abstract Test Value
+*** Does it render?
+*** Does it generate the desired =props=?
+** Testing the =mapStateToProps= function
+* How To Test React Components
+** Abstract Test Value
+*** Does it render?
+*** Does it generate the desired HTML?
+** Testing The Outcomes
+* Final Words
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+* QA
