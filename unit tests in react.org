@@ -39,7 +39,29 @@ handling, network calling, and children bearing, will ultimately result in a
 tree of HTML tags ready to be rendered by the browser.
 #+END_NOTES
 * Testing State vs Testing Outcomes
+When developing unit tests there are two common approaches:
+Testing state and testing outcomes.
 ** Testing State
+Testing state is the practice of querying the state of the unit at a given
+moment of time. In React, this can be seen in tests that assert the props and/or
+the state of the component is what we expect it to be at interesting points in
+time, for example, when a component is rendered for the first time, or when a
+button has been clicked.
+
+#+BEGIN_SRC js :results value :tangle test.js
+  const fs = require('fs');
+  console.log(__dirname);
+  return 1 + 3;
+#+END_SRC
+
+#+RESULTS:
+: /private/var/folders/hr/xgtx0knx4xz4z_069mgw8zlh0000gn/T/babel-FwNg0t
+: 4
+
+#+BEGIN_NOTES
+My guess is we do this because when we debug we usually make sure the state is
+correct step by step during the execution of our program.
+#+END_NOTES
 ** Testing Outcomes
 *** Test Robustness
 In general, test robustness increases if we test outcomes.
