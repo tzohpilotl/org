@@ -41,34 +41,121 @@ tree of HTML tags ready to be rendered by the browser.
 * Testing State vs Testing Outcomes
 When developing unit tests there are two common approaches:
 Testing state and testing outcomes.
-** Testing State
+** Testing A Unit's State
 Testing state is the practice of querying the state of the unit at a given
 moment of time. In React, this can be seen in tests that assert the props and/or
 the state of the component is what we expect it to be at interesting points in
 time, for example, when a component is rendered for the first time, or when a
 button has been clicked.
+#+BEGIN_SRC js :results output :tangle test.js
+  const assert = require('assert/strict');
 
-#+BEGIN_SRC js :results value :tangle test.js
-  const fs = require('fs');
-  console.log(__dirname);
-  return 1 + 3;
+  function createCounter() {
+      let state = { count: 0 };
+      return {
+          state,
+          onClick() {
+              state.count += 1;
+          },
+          render() {
+              return `<p>Clicked ${state.count}</p>`;
+          },
+      };
+  }
+
+  const counter = createCounter();
+
+  assert.equal(counter.state.count, 0);
+  
+  counter.onClick();
+
+  assert.equal(counter.state.count, 1);
 #+END_SRC
 
 #+RESULTS:
-: /private/var/folders/hr/xgtx0knx4xz4z_069mgw8zlh0000gn/T/babel-FwNg0t
-: 4
 
 #+BEGIN_NOTES
 My guess is we do this because when we debug we usually make sure the state is
 correct step by step during the execution of our program.
+
+What happens if we change the type of ~state.count~?
+What happens if we change ~state.count~ for ~state.clicks~?
+What happens if we pass the count as parameter (prop) instead of storing it as
+state?
+What happens if we change the word "Clicked" for "Clidkec" in the render method?
 #+END_NOTES
-** Testing Outcomes
-*** Test Robustness
-In general, test robustness increases if we test outcomes.
-*** Test Value
+** Testing A Unit's Purpose
+Testing outcomes refers to the practice of testing a unit delivers the outcomes
+it's designed to deliver. In React, this means we should test a component
+delivers the desired HTML code given a known context.
+#+BEGIN_SRC js
+  const assert = require('assert/strict');
+
+  function createCounter() {
+      let state = { count: 0 };
+      return {
+          state,
+          onClick() {
+              state.count += 1;
+          },
+          render() {
+              return `<p>Clicked ${state.count}</p>`;
+          },
+      };
+  }
+
+  function getInnerText(html) {
+      return html.replace(/\<p\>|\<\/p\>/gi, '');
+  }
+
+  const counter = createCounter();
+
+  assert.equal(getInnerText(counter.render()), `Clicked 0`);
+
+  counter.onClick();
+
+  assert.equal(getInnerText(counter.render()), `Clicked 1`);
+#+END_SRC
+
+#+RESULTS:
+: undefined
+** Test Value
 The value of a test has to be proposed case by case, it depends on the unit's
 purpose.
-** Which one is better?
+
+Let's examine the ~counter~ component.
+#+BEGIN_SRC js
+  function createCounter() {
+      let state = { count: 0 };
+      return {
+          state,
+          onClick() {
+              state.count += 1;
+          },
+          render() {
+              return `<p>Clicked ${state.count}</p>`;
+          },
+      };
+  }
+#+END_SRC
+From the source code, we can tell that the counter component's output is some
+HTML code that includes the number of times its ~onClick~ callback has been
+called, but in the end, the component's expected /outcome/ is this:
+
+to show a user how many times the counter has been clicked.
+
+Note that neither the fact that the counter comes from state or props, nor if
+the text is displayed inside a paragraph or a list item matters to the end user.
+** Test Robustness
+For every testing approach (testing a unit's state and testing a unit's
+purpose), ask the following questions:
+
+- What happens if we change the type of ~state.count~?
+- What happens if we change ~state.count~ for ~state.clicks~?
+- What happens if we pass the count as parameter (prop) instead of storing it as state?
+- What happens if we change the word "Clicked" for "Clidkec" in the render method?
+ 
+In general, test robustness increases when we test outcomes instead of state.
 * When To Test The Redux =connect= HOC
 ** Abstract Test Value
 *** Does it render?
