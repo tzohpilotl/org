@@ -21,8 +21,8 @@
 title: Notes On Programming
 email: tzohpilotl@gmail.com
 description: Some notes about programming.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://tzohpilotl.github.io/org" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/org" # the subpath of your site, e.g. /blog
+url: "https://tzohpilotl.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  tzohpilotl
 
 # Build settings
