@@ -1,0 +1,8 @@
+* Shipping Services Integration Tests
+
+** Unknowns
+*** How to run the tests in a VM
+*** How to turn on the require labels feature flag
+*** How to setup local db users
+*** How to setup reusable orders
+*** How to setup orders in specific states

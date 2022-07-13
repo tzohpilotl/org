@@ -1,0 +1,352 @@
+
+
+* 2022
+
+** 2022-04 April
+[2022-04-12 Tue 08:41] Leí el código alrededor de los botones involucrados en [[https:jira.etsycorp.com/browse/SHIPSERV-57][SHIPSERV-57]] 
+
+[2022-04-12 Tue 12:10] Tried naive approach of calling both buy shipping labels
+and mark as complete actions. Found that the flow buys labels for all the order.
+- Going to try to make the opted-out orders unavailable for the shipping label
+action somehow.
+
+[2022-04-12 Tue 12:54] After a little inspection we identified two options:
+- Add ff checks in 3 places: in the ShippingLabelPurchase component, in the
+  complete_orders_overlay selector, in the ShippingLabelPurchase selector.
+- Add ff check in the ShippingLabelPurchase component and open the
+  CompleteOrdersOverlayActions.submit,
+  ShippingAndOrdersActions.purchaseLabelsAndContinue and
+  ShippingLabelPurchaseActions.showEulaView action creators to receive the forms
+  we wish to process.
+  
+[2022-04-12 Tue 13:32] The purchaseShippingLabels action attempts to buy labels
+even if there are no purchase forms.
+
+fulfillOrders > purchaseLabelsAndContinue > purchaseShippingLabels >
+sendShippingLabelsPurchase > postPurchase OR special cases
+Where is the response processed? Can we use the same mechanism instead of doing
+it manually?
+
+What do we need to do to do integration tests:
+- How to provide "infinite" orders for a user to test order fulfillment?
+- How to control what feature flags are on at a given time?
+
+** 2022-05 May
+[2022-05-03 Tue 16:02] Deviate from default behavior fast
+[[https://etsy.slack.com/archives/C02S57B5BLM/p1651617318976109][Slack Convo]]
+I would like to point you out to [[https://github.etsycorp.com/Engineering/Etsyweb/pull/126427/files#r687078][this discussion]] on when to deviate from
+standard behavior or happy path. To me, it’s best to assert the exceptions when
+the flow would branch out from the happy path or default behavior, similar to
+what we do with switch statements. This way, the code turns out very similar to
+that written with the [[https://medium.com/swlh/return-early-pattern-3d18a41bba8][“return early pattern”]] or even the [[https://stackoverflow.com/questions/2807241/what-does-the-expression-fail-early-mean-and-when-would-you-want-to-do-so][“fail early pattern”]].
+In general, we want to return early because we (should) know what conditions our
+code needs to function properly, there’s no point going forward if these
+conditions aren’t met. We want to fail early because otherwise we would be
+failing slowly :awesome: that means that incorrect data or application state
+will limp its way down the stream possibly wreaking havoc. Finally, we want to
+deviate from default behavior first because special preconditions are better
+defined than the happy path, and asserting them first aligns better to other
+instances of the pattern.
+
+Of course, it could be said that these patterns are a symptom of defensive programming,
+or some variation of exception programming, which are bad™. But turning away from those
+styles is a massive change.
+
+Just food for thought now: we program defensively because we don’t know the types of our
+data and the value of our data in a given point in time. The first issue is solved by
+statically typed programming languages. I know 2 solutions for the second issue: one is
+state machines, the other is functional programming. One example of the second issue could
+be a function that splits a company’s revenue equally among it’s workers:
+
+#+BEGIN_SRC javascript
+const splitRevenue = (workers, revenue) => revenue / workers;
+#+END_SRC
+
+This function will fail if we come to the point where we have 0 workers. To prevent this 
+we could implement a state machine that handles the hiring and firing our workers:
+
+#+BEGIN_SRC javascript
+  const state = {
+    workers: 1,
+    revenue: 0,
+  };
+
+  const hire = (state) => ({
+    ...state,
+    workers: state.workers + 1,
+  };
+
+  const fire = (state) => {
+    if (workers === 1) {
+       return;
+    }
+    return {
+      ...state,
+      workers: state.workers - 1,
+    };
+  }
+
+  // won't fail because is not possible for workers to be 0
+  const revenuePerWorker = splitRevenue(state.revenue, state.workers);
+ #+END_SRC
+
+  In this way, we are treating our state application as an infinite state machine while providing
+  it with a very high level guard to prevent incorrect state. This actually makes sense with the
+  notion of a company because we know a company cannot exist without its workers :wink: .
+  This way, our ~splitRevenue~ function nor any other function for that matter, have to be
+  concerned with the non-sensical state of a company with no workers. We are effectively delimiting
+  the states our application can be in.
+
+  The other way to solve it is to use a declarative and flexible paradigm: functional programming.
+  Using algebraic data structures we could do something like this:
+
+#+BEGIN_SRC javascript
+  const Maybe = (x) => ({
+    map(fn): {
+      if (!x) {
+        return Maybe(x);
+      }
+      return Maybe(fn(x));
+    },
+    getValue() {
+      return x;
+    }
+  });
+
+  const splitRevenue = (revenue) => (workers) => revenue / workers;
+
+  // 5 workers; 100 revenue; won't fail
+  const revenuePerWorker = Maybe(5).map(splitRevenue(100)).getValue();
+
+  // 0 workers; 100 revenue; won't fail
+  const revenuePerWorker = Maybe(0).map(splitRevenue(100)).getValue();
+#+END_SRC
+Of course, this is a simplistic approach, a lot of infrastructure would need to be in place to
+leverage this. The gist is that by using a common `map` interface to manipulate values we're 
+in control of what happens to common exceptions, like when a value is not present or doesn't
+make sense. This is essentially embedding null checks into data structures.
+[2022-05-03 Tue 16:57] Found out that the UpdateOrderStatesDropdown is failing
+because the UpdateOrderStatesDropdownV2 requires an order_state prop and its
+parent is not sending it, it never were. This has surfaced after some changes
+suggested by Seph, based on the informed assumption that the
+`showCollageVersion` prop would always be `true`, to remove the decision of
+either showing UpdateOrderStatesDropdownV2 or UpdateOrderStatesDropdownV1 based
+on the mentioned prop.
+[2022-05-03 Tue 18:18] When to make decisions at the parent level
+[[https://etsy.slack.com/archives/C02S57B5BLM/p1651619909439819?thread_ts=1651617318.976109&cid=C02S57B5BLM][Slack convo]]
+Usually you defer decisions to child components in the case where the child
+would add some data to its props. Imagine you have a <Car /> component that has
+a <Engine /> component. The car would pass down the isTrunkOpen prop to the
+Engine component and the component will use its isSafeModeOn state to determine
+shouldEngineTurnOff = props.isTrunkOpen && state.isSafeModeOn. In that case, the
+isSafeModeOn concerns only to the engine and it combines that knowledge to the
+one provided via props. Imagine the isSafeModeOn state has to be moved up to the
+<Car /> because now the lights system uses it as well. In that case it makes no
+sense to pass it down as a prop and do shouldEngineTurnOff= props.isTrunkOpen &&
+props.isSafeModeOn, we could just pass shouldEngineTurnOff as a prop because the
+engine’s data and context is now irrelevant to that decision.
+In the dropdown case, the dropdown is not using any other internal knowledge to
+determine which version should be rendered, so that decision could be made by
+its parent and passed down as a prop. This is more true in this particular case
+in which we don’t actually need the showCollageVersion prop (because it’s always
+true) we know exactly the instances in which we have to render V1 or V2.
+[2022-05-04 Wed 14:59] Found that the shipping labels overlay is missing the
+order id in some cases. The issue is that the overlay is relying on selected
+orders but when you click on the clock icon there are no selected orders.
+[2022-05-05 Thu 09:49] Created the first custom hooks I've seen. ~useCompleteOrdersOverlay~
+[2022-05-05 Thu 17:20] Found that at least one test is failing because we're
+sending new fields in the mark as complete request body, I am tempted to just
+add the fields to the test's expectations but I feel these fields will only
+(should) be sent when the labels feature flag is on, but not all of the time.
+See htdocs/assets/js/mission_control/services/MarkComplete/__tests__/index.test.ts
+[2022-05-06 Fri 11:16] My latest push to production for SHIPSERV-18 broke the
+order step functionality. I wrote the fix and made a PR already. Here's the
+commit message for the fix:
+
+#+BEGIN_QUOTE
+This fixes https://jira.etsycorp.com/browse/TROUBLE-1191
+This bug was introduced when I stopped sending the `orders`
+prop to the `UpdateOrderStatesDropdown` by mistake. The
+prop was used in the `mapDispatchToProps` function to create
+the function to assign the order states. I moved this logic up to
+a hook to make it reusable and unburden the dropdown from
+additional props.
+#+END_QUOTE
+[2022-05-06 Fri 11:19] A realization about React Hooks:
+#+BEGIN_QUOTE
+Hi team! I would like your advise on using React Hooks. I’ve seen it’s generally
+favored against class components to handle state,  even react-redux implemented
+hook bindings in its latest versions. The thing is that when testing a
+components that has child components using useSelector or the like, you still
+have to mock all the hooks or the selectors used by the child components.
+#+END_QUOTE
+[2022-05-06 Fri 14:37] Will try to invert control on the `update` method in the
+MarkComplete service. This is to allow passing down different payloads that will
+be created with different transformers, based on the feature flag.
+[2022-05-10 Tue 13:33] The FailedLabelsInfo default export is expecting an
+external location to be passed as prop. It looks like the props were not
+declared correctly. The declaration expected the final combined props, after
+merging the connect HOC props, to have a location, but in reality only the
+component-specific props needed to expect the location prop.
+[2022-05-10 Tue 13:57] Will migrate the PrintLabelNoticeOverlay component to
+typescript because it's use in PosPurchaseContent doesn't pick up the onConfirm
+prop, and it complains about not being expected. Tried to create a named
+declaration file to no avail, was going to create a new folder to be able to
+name both the tsx file and de d.ts file `index` but this would require me to
+make them typescript files so I decided to do the migration straight away. 
+[2022-05-26 Thu 15:54] Synced with Paco on SHIPSERV-79
+[2022-05-26 Thu 15:55] Reviewed SHIPSERV-71 PR
+[2022-05-30 Mon 13:11] Fixed test issue for SHIPSERV-77 and shipped it
+[2022-05-30 Mon 13:36] Reviewed SHIPSERV-76 PR, left comments regarding
+convoluted logic. My suggestion was to put it in a function and give a name to
+the result like ~isDateEditDisabled~
+
+** 2022-06 June
+[2022-06-01 Wed 16:33] We haven't been able to identify the reason  we can't run
+the shipping label integration test in the VMs. I was suggested I should try to
+test this manually, and if it still doesn't work, I should try to run them
+locally. See https://etsy.slack.com/archives/C5ZFA1BUK/p1654117527487679?thread_ts=1654037274.565789&cid=C5ZFA1BUK
+[2022-06-02 Thu 15:49] Joseph Ayele said the API login for automated tests
+pointing to the VM aren't working lately, he suggested we use the UI to login.
+I'm uncertain as to why the login works when using the default dev env user but
+not with my test user. I will try to implement a login test case or copy an
+existing one to try to get a test working with my test user in my VM.
+[2022-06-03 Fri 09:58] I was finally able to sign in via automated test using
+the user I use in my VM
+[2022-06-03 Fri 17:16] Finally got the test to run and select an order, the
+weird thing now is that it's showing as not having the feature flag on even if
+it shows as on if I navigate in my VM.
+[2022-06-07 Tue 11:18] Can't seem to set the url override query params in
+Cypress tests
+[2022-06-07 Tue 12:12] The feature flag was correctly set in the VM and by
+consecuence in the Cypress tests, I was looking at the wrong button though. A
+remaining question is how could we purchase labels without having the orders be
+completed in order to be able to reuse them.
+[2022-06-07 Tue 16:43] Things that we need to work out for the Cypress tests:
++ How to override the feature flag using the url
++ How to serve the assets statically
++ How to test purchasing labels for the orders without losing them
++ Get a user with normal orders and maybe some unpaid orders too
++ Get a user with a custom digital order
+[2022-06-09 Thu 15:00] The url override doesn't seem to be working for all the
+Require Managed Shipping Labels experience. I found this while trying to use the
+cookie override for our Cypress tests in my VM.
+[2022-06-09 Thu 15:10] Seems that in order for the url override to work, the
+frontend needs to consume the feature flags through ~Feature.isFeatureEnabled()~
+instead of reading it from the Redux store.
+[2022-06-09 Thu 16:44] We're going to ask if we are allowed to create a new
+feature flag to flag our users and testing accounts to be able to test both
+locally and in princess using the url override. We can't use the url override
+right now because we chose not to use the ~Feature~ class due to security
+concerns: the feature flag can be overriden from the browser terminal manually
+if the ~Feature~ class were used everywhere. Paco proposed to investigate more.
+The team is going to notify the our manager and other senior teams.
+[2022-06-16 Thu 11:58] Synced with Victor and Flore to show them the security
+issue with the ~Feature~ class and tell Flore we won't be merging her PR.
+[2022-06-17 Fri 12:24] Got together with the team to discuss about custom
+digital orders. Didn't get much from it, kind of zoned out.
+[2022-06-20 Mon 13:02] Reviewed[[https://github.etsycorp.com/Engineering/Etsyweb/pull/131456/files][ SHIPSERV-16]] and advised to leave one of the
+Feature class uses as it was since it is very tangled and would be
+time-consuming to refactor. The thing is the decision about the tooltip message
+is encapsulated in the order data structure. We would need to pull that logic
+out to the component so we could easily plug the Redux state.
+[2022-06-20 Mon 15:15] Reviewed [[https://github.etsycorp.com/Engineering/Etsyweb/pull/131675][SHIPSERV-44]] for Hector and left mostly style
+comments.
+[2022-06-23 Thu 13:09]
++ Continued to work on the ShippingLabelPurchase directory. This is essentially,
+  getting rid of the Overlay abstraction in favor of the View abstraction to
+  reduce the number of abstraction levels and straighten our mental model.
++ Talked with Jose about the intention to integrate the notions we have about
+  the project into a solid mental model. This could lead us to feel our work is
+  a coherent effort and not just a set of scattered quick fixes.
++ Asked the Typescript advisors about the incompatibility between
+  ~LocationDescriptor~ and ~ReactRouterLocation~ while working on the Welcome
+  "Overlay".
+[2022-06-24 Fri 16:26] I got all the overlays migrated to TS, my VM is having
+problems to compile the app. Also, synced with Hector about the unused parameter
+error he experienced while using mock functions; it's possible to just append an
+underscore to the parameter's name to exclude it from this check.
+[2022-06-27 Mon 12:19] Reviewed [[https://github.etsycorp.com/Engineering/Etsyweb/pull/132036#pullrequestreview-529526][SHIPSERV-32]] left comments regarding inversion of
+control. The ~PostPurchaseView~ makes UI decisions based on a lot of props, I
+believe this decision can be taken by the parent component and just tell the
+~PostPurchaseView~ what to render.
+
+** 2022-07 July
+[2022-07-06 Wed 15:48] Closed the loop on SHIPSERV-62 with Cristy and tuned the
+implementation to match the requirements. Also added a unit test to lock in this
+behavior.
+[2022-07-07 Thu 10:53] Jose asked to think about possible technical-related work
+for the next sprint. My initial thought was to migrate RTK stuff. Also, probably
+the work to integrate [[https://github.etsycorp.com/Engineering/Etsyweb/pull/132080][this refactor]] could be appropriate.
+Told Jose about the feeling of not knowing if doing enough. This came to be
+after realising I didn't know much about the Custom Digital Orders work. Jose
+pointed out that work was assigned to other teammates, I wasn't required to be
+on top of it.
+[2022-07-07 Thu 11:24] Reviewed Flore's PR for [[https://github.etsycorp.com/Engineering/Etsyweb/pull/133288][SHIPSERV-58]]. The name
+~NoEtsyLabelMessage~ implies a specific use case; Flore's changes go against
+this because the component would now be used for custom digital orders as well.
+Suggested to change the name ~NoEtsyLabelMessage~ to something generic and let
+it just accept a message and an icon, letting the caller decide the correct text
+and image, if any. My other suggestion was to have 2 components: one to use for
+digital orders, and the original ~NoEtsyLabelMessage~.
+[2022-07-07 Thu 12:03] Another small task I asked Flore to do to improve her PR
+for [[https://github.etsycorp.com/Engineering/Etsyweb/pull/133288#][SHIPSERV-58]] was to define a helper function outside the component using it
+to avoid creating it again on every render. After her latest update, I noticed
+she declared it in the parent component, removing it from the child component,
+yes, but still creating it every time the parent component renders.
+[2022-07-07 Thu 12:30] Had to leave another comment on [[https://github.etsycorp.com/Engineering/Etsyweb/pull/133288#][SHIPSERV-58]] because Flore
+defined the helper function in the ~mapStateToProps~ function instead of outside
+the component. I wonder if the notion of "outside" is not clear.
+[2022-07-07 Thu 12:35] I'm delaying the work on [[https://etsy.atlassian.net/jira/software/projects/SHIPSERV/boards/224?selectedIssue=SHIPSERV-63][SHIPSERV-63]] to wait for
+SHIPSERV-58 to be merged. The digital items count, which is going to be used by
+SHIPSERV-63, is introduced to the OrderRow component in SHIPSERV-58.
+[2022-07-07 Thu 16:13] Reminded Flore about a comment on [[https://github.etsycorp.com/Engineering/Etsyweb/pull/133288][SHIPSERV-58]] about
+repeated logic which can be abstracted away in a function. The comment hasn't
+been answered yet, I just want to make sure it doesn't get ignored.
+[2022-07-07 Thu 17:03] Asked what "enrolled" means for a seller because I
+thought it could mean enrollment to any feature, for example our Require Managed
+Shipping Labels feature. But It means that the seller is enrolled with a carrier
+to buy labels.
+Also, proposed we leave out "filler" tech debt and be vigilant during
+development work for new and fresh tech debt work that we can tackle immediately
+after finishing the development work. This has the advantage of making the tech
+debt relevant and very fresh in the dev's mind.
+[2022-07-08 Fri 11:11] Asked Flore why we are using the
+~isRequireEtsyLabelsEnabled~ flag in [[https://github.etsycorp.com/Engineering/Etsyweb/pull/133288/files#diff-441b3bc5d6d7eef61745b2ada7f7032c5e1e5568178348fec72b519b90b8b528R98][this line]] because I am under the
+impression it is only possible to interact with the ~MarkAsCompleteOverlay~ when
+the ~isRequireEtsyLabelsEnabled~ feature flag is off, rendering the condition in
+the aforementioned line useless.
+[2022-07-08 Fri 12:29] Submitted Jose's feedback in Workday. Struggled to find
+an area of growth, read and reread the manager competency matrix but he seems to
+have performed on every situation. I have a new strategy to compile my peers
+feedback on a regular basis, I hope this will make me more useful during the
+next round of feedback pull.
+[2022-07-08 Fri 18:44] Submitted Hector's feedback in Workday. I focused on his
+work for Custom Digital Orders. He's been fundamental to get this project to
+where it is, and to me, it feels like he's been leading it. Without saying, it
+seems like he's the point of reference and the responsible for its success.
+[2022-07-11 Mon 15:43] Reviewed Hector's draft for [[https://github.etsycorp.com/Engineering/Etsyweb/pull/133802/files][SHIPSERV-67]]. The main issue
+is the hook selects a function based on the ~isMobileView~ flag, but both
+functions have different interfaces. This would require the caller to perform
+the same check on ~isMobileView~ again to prevent a TS error complaining about
+not knowing which interface we're expecting. My suggestion is to not choose the
+function based on ~isMobileView~ inside the hook, instead, we should create 2
+functions and let the caller decide which one to use because it will have to
+perform the check anyways.
+[2022-07-11 Mon 17:35] After a technical discussion with Hector about the
+possible approaches to manage the order item navigation, we reached an agreement
+and it seems to be the best. Hector has been very receptive to all the feedback
+and, as always, looked for opportunities to learn, asking questions about the
+practices  he's not so familiar with.
+[2022-07-12 Tue 11:14] Reviewed Hector's PR for [[https://github.etsycorp.com/Engineering/Etsyweb/pull/133802/files][SHIPSERV-67]]. He agreed to create
+separate functions to handle mobile and desktop navigation, the end result looks
+good, I only left minor comments.
+[2022-07-12 Tue 13:19] Cristy asked me if I definitely don't have feedback for
+the time she led a design presentation for Custom Digital Orders. I said no, I
+was just worried she might've felt a bit overwhelmed for presenting to a group
+of men engineers. Then I shared the work diary plus feedback log strategy I'm
+using so maybe she could do something like that. She agrees sometimes it's
+difficult to remember the feedback that goes way back to the past.
+[2022-07-12 Tue 14:33] Paco took quick action to enable the feature flag in dev
+after Seph raised the concern about the discrepancy in both prod and dev envs a
+bit closer.

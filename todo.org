@@ -1,0 +1,113 @@
+
+* 2022
+** 2022-04 April
+*** DONE Prevent attempt to buy shipping labels if there are no purchase forms in purchaseShippingLabels and probably in mark as complete action too
+CLOSED: [2022-04-13 Wed 16:58]
+*** DONE Filters for the selector in the buy shipping label flow
+CLOSED: [2022-04-13 Wed 16:58]
+*** DONE Don't attempt to buy labels if the payload is empty
+CLOSED: [2022-04-13 Wed 16:58]
+*** DONE Test the getPurchaseFormsListForValidOrders selector
+CLOSED: [2022-04-13 Wed 17:00]
+*** DONE Filters for the selector in the mark as complete flow
+CLOSED: [2022-04-19 Tue 09:48]
+*** DONE Adapt confirmation overlay for opted out orders
+CLOSED: [2022-04-20 Wed 16:35]
+*** DONE Prevent the mark as complete overlay from opening
+CLOSED: [2022-04-20 Wed 16:36]
+*** DONE Handle the show Eula case
+CLOSED: [2022-04-20 Wed 18:38]
+*** DONE Put the mark as complete call behind the feature flag in the ShippingLabelPurchase component
+CLOSED: [2022-04-20 Wed 18:39]
+
+** 2022-05 May
+
+*** 2022-05-03 Tuesday
+**** DONE [#A] Fix whatever is broken on the SHIPSERV-18 branch
+CLOSED: [2022-05-04 Wed 16:47]
+:LOGBOOK:
+CLOCK: [2022-05-04 Wed 14:58]--[2022-05-04 Wed 16:47] =>  1:49
+CLOCK: [2022-05-03 Tue 17:18]--[2022-05-03 Tue 17:35] =>  0:17
+CLOCK: [2022-05-03 Tue 16:51]--[2022-05-03 Tue 17:04] =>  0:13
+:END:
+**** DONE [#A] Ship SHIPSERV-18
+CLOSED: [2022-05-05 Thu 14:59]
+:LOGBOOK:
+CLOCK: [2022-05-04 Wed 17:08]--[2022-05-04 Wed 18:01] =>  0:53
+:END:
+**** DONE Code complete SHIPSERV-57
+CLOSED: [2022-05-30 Mon 16:12]
+**** DONE Review Hector's[[https:github.etsycorp.com/Engineering/Etsyweb/pull/126427][ PR]] 
+CLOSED: [2022-05-03 Tue 16:09]
+CREATED: <2022-05-03 Tue 14:12>
+**** DONE Expense offsite receipts
+CLOSED: [2022-05-30 Mon 16:12]
+[[https://docs.google.com/presentation/d/1vkfWP1t_T9CtR_XWoZ1z6_j_2JYtGqLIq2xaPYV75kg/edit#slide=id.g5eac5f5bf3_0_640][How to prepare your expense report]]
+ CREATED: [2022-05-03 Tue 19:31]
+**** TODO [#C] Do Carlos module in [[https://learn.praxislabs.co/modules/module1/introduction][Praxis platform]] 
+ CREATED: [2022-05-03 Tue 19:32]
+**** DONE [#A] Add [[https://github.etsycorp.com/Engineering/Etsyweb/pull/122583/files][SHIPSERV-18]] events to the [[https://confluence.etsycorp.com/pages/viewpage.action?spaceKey=SHIP&title=Events+and+Monitoring][Events File]] 
+CLOSED: [2022-05-05 Thu 15:00]
+ CREATED: [2022-05-03 Tue 19:34]
+**** TODO [#C] Do discrimination lesson in [[https://etsy.lessonly.com/lesson/782712-preventing-harassment-and-discrimination-usa][Lessonly]] 
+ CREATED: [2022-05-03 Tue 19:35]
+**** DONE Expense office chair
+CLOSED: [2022-05-12 Thu 10:14]
+[[https://etsyhomebase.zendesk.com/hc/en-us/articles/1500000109801][WFH offerings]]
+ CREATED: [2022-05-03 Tue 19:37]
+**** DONE Investigate if I can still enroll to engineering week
+CLOSED: [2022-05-12 Thu 10:14]
+[[https://etsyhomebase.zendesk.com/hc/en-us/articles/1500000109801][Fiesty]]
+ CREATED: [2022-05-03 Tue 19:38]
+
+*** 2022-05-04 Wednesday
+**** DONE Follow up on the fix to get my VM not ask password
+CLOSED: [2022-05-04 Wed 09:58]
+CREATED: [2022-05-04 Wed 08:29]
+**** DONE [#A] Fix the bug when you select orders and click on the clock icon
+CLOSED: [2022-05-05 Thu 14:33]
+CREATED: [2022-05-04 Wed 18:01]
+
+*** 2022-05-05 Thursday
+**** DONE Fix failing MarkCompleteService tests related to SHIPSERV-57
+CLOSED: [2022-05-06 Fri 17:59]
+CREATED: [2022-05-05 Thu 17:20]
+
+*** 2022-05-09 Monday
+**** DONE Test the PostPurchaseTitle
+CLOSED: [2022-05-12 Thu 10:14]
+CREATED: [2022-05-09 Mon 14:10]
+**** DONE Test the PostPurchaseView component
+CLOSED: [2022-05-12 Thu 10:14]
+:LOGBOOK:
+CLOCK: [2022-05-09 Mon 15:33]
+:END:
+ CREATED: [2022-05-09 Mon 14:12]
+**** DONE Test FailedLabelsInfo component
+CLOSED: [2022-05-12 Thu 10:14]
+ CREATED: [2022-05-09 Mon 14:15]
+
+*** 2022-05-10 Tuesday
+**** DONE Book flight and hotel for thursday and friday (Fietsy)
+CLOSED: [2022-05-30 Mon 16:10]
+CREATED: [2022-05-10 Tue 11:02]
+
+*** 2022-05-12 Thursday
+**** DONE Migrate PostPurchaseView to Typescript
+CLOSED: [2022-05-12 Thu 15:10]
+ CREATED: [2022-05-12 Thu 10:15]
+
+*** 2022-05-30 Monday
+**** DONE Do the 90 day employee survey
+CLOSED: [2022-05-30 Mon 16:30]
+ CREATED: [2022-05-30 Mon 16:10]
+**** TODO Fill up the 90 day feedback template
+ CREATED: [2022-05-30 Mon 16:11]
+**** TODO SHIPSERV-77
+ CREATED: [2022-05-30 Mon 16:12]
+**** DONE Fill the employee engagement survey
+CLOSED: [2022-05-30 Mon 16:51]
+ CREATED: [2022-05-30 Mon 16:46]
+**** DONE Catch up with email
+CLOSED: [2022-05-30 Mon 17:16]
+ CREATED: [2022-05-30 Mon 17:16]
