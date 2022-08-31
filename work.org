@@ -350,3 +350,99 @@ difficult to remember the feedback that goes way back to the past.
 [2022-07-12 Tue 14:33] Paco took quick action to enable the feature flag in dev
 after Seph raised the concern about the discrepancy in both prod and dev envs a
 bit closer.
+
+*** [2022-07-13 Wed 17:49]                     :retro:flore:hector:chamo:qdc:
+I was pleased to see the commit history for the SHIPSERV-32 feature branch is
+not too disorganized. It was just a matter of slightly editing it to make it
+pristine. Chamo, Hector and Flore did a good job here. Although, I'm thinking
+that even when feature flags are a valid way of working, they discourage
+continuous integration and waste effort when conflicts are present. I recognized
+their effort in keeping the commit history clean in the shipping services eng
+channel.
+
+*** [2022-07-14 Thu 14:55]                                            :chamo:
+Chamo has been vigilant about a weird behavior in the UI, he's also aware about
+the need to standardize some selectors. He's very quick and proactive to call
+these out and jump in a call with the design people to clarify stuff and define
+next steps. 
+
+*** [2022-07-14 Thu 16:29]                                             :jose:
+Jose mentioned the competency matrix should account for everyone, meaning any
+trait that adds value should be unaccounted for when evaluating engineers using
+the competency matrix. This makes for a fair and complete competency matrix.
+
+*** [2022-07-15 Fri 14:51] 
+In the context of SHIPSERV-54 took a look at the BrowseView component (Orders
+and Shipping page) which holds the banners we're interested in. I took a
+screenshot with all the banners for reference, the new banner is supposed to
+be inserted at the top of the banner stack.
+
+*** [2022-07-15 Fri 15:01]                                        :tech_debt:
+The Yakit status banner and the processing times feedback banner are living
+inside the orders group list component right now. This is a bit odd, given the
+other "banners" live in the root Orders And Shipping Page. We should move them
+up to the Orders And Shipping Page component so they are at the same level than
+the other banners. 
+
+*** [2022-07-19 Tue 16:11] 
+I'm on an issue regarding imports that is blocking me. Some imports with
+~mission-control~ in their path are causing ~ModuleNotFound~ errors in my VM.
+When I search for the module in that path I cannot find it, but if I switch
+~mission-control~ for ~MissionControl~ I can. I am not sure how is production
+not failing because of this, some webpack resolution magic, I guess. I am
+worried the dev environment diverged from the prod environment, which could
+cause bugs to creep in. It's not as surprising to the people I have shown this
+to.
+
+*** [2022-07-25 Mon 22:40]                                        :retro:qdc:
+I almost deployed an error to production. I changed the BuyerPromiseEnabler
+Loader for its LoadAndFetch but in the middle of the deploy I had a big hunch
+that I didn't properly check if they were interchangeable. They weren't and so I
+had to revert in the middle of the deployment. 
+
+*** [2022-07-26 Tue 20:24]                                        :tech_debt:
+Finished implementing the change to move the YakitStatusPanel from the
+OrderGroupList to the BannerNotifications component. We should refactor the
+BannerNotifications component to be merely a system that displays a list of
+components and move most of its code out to a config object. This way we could
+pass in unconnected components and be able to test the system works without
+mocking. Right now, we would have to mock the components nested inside the
+BannerNotifications. Also, there is this assignment in the BannerNotifications:
+#+BEGIN_SRC javascript
+  banners = banners.push({
+      component: /* some component */,
+      priority: /* some priority */,
+  });
+#+END_SRC
+which made my testing experiments fail because ~Array.prototype.push~ returns a
+1 if it was successful and 0 if it wasn't, not the array itself.
+
+** 2022-08 August
+
+*** [2022-08-04 Thu 21:25]                                             :paco:
+Reviewed Paco's PR for [[https://github.etsycorp.com/Engineering/Etsyweb/pull/136457][SHIPSERV-42]]. Left a comment regarding the design for his
+solution. He introduced a country key to let the backend know what options for
+opt-out reasons would be displayed according to the user account's country. This
+sounds good but he's calling the method to select the appropriate country key in
+several places which leads me to believe this is a finnicky solution: would
+developers know easily that they need to set this country key?
+
+*** [2022-08-05 Fri 22:54]                                            :flore:
+Reviewed SHIPSERV-74 and asked Flore for details about the typecheck errors and
+failed tests she said she's getting after removing some of the React imports. I
+did this because she said she was getting those for a couple of days but there
+were no specifics as to why she couldn't solve them. These errors sound a bit
+weird so I'm interested in trying to solve them because they could possibly
+impact other teams in the future.
+
+*** [2022-08-05 Fri 23:03]                                            :chamo:
+Had a chat with Chamo about ways to improve [[https://github.etsycorp.com/Engineering/Etsyweb/pull/135298][SHIPSERV-66]]. I had a feeling
+something could be improved especially after reading [[https://beta.reactjs.org/learn/you-might-not-need-an-effect][this doc]]. Essentially, we
+managed to get rid of some state that was holding the previous value of the
+errors in a Formik form. Instead, we inspect the current errors and act
+accordingly closer to where the errors were consumed.     
+
+*** [2022-08-31 Wed 14:55]                                    :victor:hector:
+Hector and Victor started to think about the process to add a new market to the
+required labels functionality. 
+

@@ -45,11 +45,13 @@ CLOSED: [2022-05-30 Mon 16:12]
 [[https://docs.google.com/presentation/d/1vkfWP1t_T9CtR_XWoZ1z6_j_2JYtGqLIq2xaPYV75kg/edit#slide=id.g5eac5f5bf3_0_640][How to prepare your expense report]]
  CREATED: [2022-05-03 Tue 19:31]
 **** TODO [#C] Do Carlos module in [[https://learn.praxislabs.co/modules/module1/introduction][Praxis platform]] 
+SCHEDULED: <2022-07-14 Thu>
  CREATED: [2022-05-03 Tue 19:32]
 **** DONE [#A] Add [[https://github.etsycorp.com/Engineering/Etsyweb/pull/122583/files][SHIPSERV-18]] events to the [[https://confluence.etsycorp.com/pages/viewpage.action?spaceKey=SHIP&title=Events+and+Monitoring][Events File]] 
 CLOSED: [2022-05-05 Thu 15:00]
  CREATED: [2022-05-03 Tue 19:34]
-**** TODO [#C] Do discrimination lesson in [[https://etsy.lessonly.com/lesson/782712-preventing-harassment-and-discrimination-usa][Lessonly]] 
+**** DONE [#C] Do discrimination lesson in [[https://etsy.lessonly.com/lesson/782712-preventing-harassment-and-discrimination-usa][Lessonly]] 
+CLOSED: [2022-07-14 Thu 13:15]
  CREATED: [2022-05-03 Tue 19:35]
 **** DONE Expense office chair
 CLOSED: [2022-05-12 Thu 10:14]
@@ -101,13 +103,33 @@ CLOSED: [2022-05-12 Thu 15:10]
 **** DONE Do the 90 day employee survey
 CLOSED: [2022-05-30 Mon 16:30]
  CREATED: [2022-05-30 Mon 16:10]
-**** TODO Fill up the 90 day feedback template
+**** DONE Fill up the 90 day feedback template
+CLOSED: [2022-07-14 Thu 13:05]
  CREATED: [2022-05-30 Mon 16:11]
-**** TODO SHIPSERV-77
- CREATED: [2022-05-30 Mon 16:12]
 **** DONE Fill the employee engagement survey
 CLOSED: [2022-05-30 Mon 16:51]
  CREATED: [2022-05-30 Mon 16:46]
 **** DONE Catch up with email
 CLOSED: [2022-05-30 Mon 17:16]
  CREATED: [2022-05-30 Mon 17:16]
+
+** 2022-07 July
+
+*** 2022-07-14 Thursday
+**** TODO [[https://etsy.atlassian.net/browse/SHIPSERV-54?atlOrigin=eyJpIjoiZDlhYmI2NDlhZTA0NDZkY2E3N2Y3MTRlYTIwNTQ4ZTYiLCJwIjoiaiJ9][SHIPSERV-54]] [0%]
+Become familiar with the code base and develop perspective on level of effort to
+help us prioritize the set of ideas.
+****** TODO [SHIPSERV-54] Enable BrowseView tests
+****** TODO [SHIPSERV-54] [[file:work.org::*\[2022-07-15 Fri 15:01\]][Move the Yakit status banner to the same abstraction level than the other banners]]
+****** TODO [SHIPSERV-54] Move the Yakit status banner to the top of the Orders And Shipping page
+****** TODO [SHIPSERV-54] Migrate the Yakit status banner to use the new Collage components
+CREATED: [2022-07-14 Thu 13:25]
+
+*** 2022-07-15 Friday
+**** TODO Read the [[https://docs.google.com/presentation/d/1W4DeoznDu4t7EVUYnUk_bZa1ogZ0S5lQFoks89mjigI/edit#slide=id.gd8d4b70023_0_213][Consolidated Shipping Label Purchase Flow]] document
+ CREATED: [2022-07-15 Fri 20:35]
+
+*** 2022-07-19 Tuesday
+**** TODO Take the [[https://etsy.cultureamp.com/responses/62cc2d331ef51f0001668833?secret=7WqiODw1wBbk_4H4olg42SxyjOiP-A][benefits survey]] 
+SCHEDULED: <2022-07-19 Tue>
+CREATED: [2022-07-19 Tue 12:46]
